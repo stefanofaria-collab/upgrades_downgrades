@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upgrades e Downgrades</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--navy:#0f2438;--navy2:#16324d;--teal:#0f9d9a;--bg:#f4f6fa;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b;--up:#0a7d4f;--upbg:#d1fae5;--down:#c0123c;--downbg:#fee2e2}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh}
+aside{width:244px;background:var(--navy);color:#cbd5e1;padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;flex-shrink:0}
+.brand{font-weight:800;color:#fff;font-size:17px;line-height:1.2;padding:6px 10px 4px}.brand span{color:#2dd4bf}
+.brand-sub{font-size:10px;letter-spacing:.14em;padding:0 10px 18px;color:#7b93ab}
+.menu-t{font-size:10px;letter-spacing:.14em;color:#7b93ab;padding:8px 10px}
+aside a{display:block;padding:11px 12px;border-radius:8px;color:#cbd5e1;text-decoration:none;font-size:14px;margin-bottom:4px;cursor:pointer}
+aside a.on{background:var(--navy2);color:#fff;font-weight:600}
+.side-foot{margin-top:auto;background:var(--navy2);border-radius:10px;padding:12px;font-size:12px}
+.side-foot b{display:block;color:#fff;font-size:13px}
+main{flex:1;min-width:0;padding:0 34px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0;color:var(--mut);font-size:13px}
+.eyebrow{font-size:11px;letter-spacing:.14em;color:var(--teal);font-weight:700}
+h1{margin:6px 0 4px;font-size:32px}h1 i{color:var(--teal);font-style:normal}
+.sub{color:var(--mut);font-size:14px;margin:0}
+.bar{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+select,input[type=text],input[type=email],input[type=date]{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:13px;background:#fff;font-family:inherit}
+button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+button.pri{background:var(--teal);border-color:var(--teal);color:#fff}
+button:disabled{opacity:.6;cursor:wait}
+.err{background:#fff1ee;color:#b4321c;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px}
+.ok{background:#ecfdf5;color:#065f46;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:13px}
+.grid{display:grid;gap:16px}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1300px){.g5{grid-template-columns:repeat(3,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:800px){aside{display:none}main{padding:0 14px}.g5{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.kpi .t{font-size:11px;letter-spacing:.08em;color:var(--mut);font-weight:700;text-transform:uppercase}
+.kpi .v{font-size:30px;font-weight:800;margin:10px 0 2px}
+.kpi .s{font-size:13px;color:var(--mut)}
+.pos{color:var(--up)}.neg{color:var(--down)}
+.card h3{margin:2px 0 2px;font-size:17px}.card .d{color:var(--mut);font-size:13px;margin:0 0 12px}
+.tools{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.seg button{border-radius:0;padding:6px 12px}.seg button:first-child{border-radius:8px 0 0 8px}.seg button:last-child{border-radius:0 8px 8px 0}
+.seg button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{background:#f5f7fb;color:var(--mut);font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:11px 10px;white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid #eef1f6;white-space:nowrap}
+td.n,th.n{text-align:right}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700}
+.pill.Upgrade{background:var(--upbg);color:#065f46}.pill.Downgrade{background:var(--downbg);color:var(--down)}
+.scroll{overflow-x:auto}
+.chartbox{position:relative;height:260px}
+.empty{color:var(--mut);padding:24px;text-align:center;font-size:14px}
+.tag{display:inline-flex;gap:8px;align-items:center;background:#f1f5f9;border-radius:99px;padding:6px 8px 6px 14px;margin:0 8px 8px 0;font-size:13px}
+.tag button{padding:2px 8px;border-radius:99px;border:0;background:#e2e8f0}
+.page{display:none}.page.on{display:block}
+</style>
+</head>
+<body>
+<aside>
+  <div class="brand">UPGRADES<span>&amp;</span><br><span>DOWNGRADES</span></div>
+  <div class="brand-sub">INTELIGÊNCIA COMERCIAL</div>
+  <div class="menu-t">MENU PRINCIPAL</div>
+  <a data-p="visao" class="on">Visão geral</a>
+  <a data-p="mov">Movimentações</a>
+  <a data-p="down">Downgrades por dia</a>
+  <a data-p="envios">Histórico de envios</a>
+  <a data-p="config">Configurações</a>
+  <div class="side-foot"><b>Envio automático</b><span id="foot-hora">Todos os dias às 09:00</span></div>
+</aside>
+<main>
+  <div class="top"><span id="crumb">Comercial / Planos / Visão geral</span><span id="atualizado">Carregando…</span></div>
+
+  <!-- VISÃO GERAL -->
+  <section class="page on" id="p-visao">
+    <div class="bar">
+      <div><div class="eyebrow">RELATÓRIO DE MOVIMENTAÇÃO</div>
+        <h1>Upgrades e downgrades<i>.</i></h1>
+        <p class="sub">Alterações de plano e/ou duração dos clientes, medidas diariamente.</p></div>
+      <div class="ctl">
+        <select id="periodo"></select>
+        <button class="pri" id="btn-atualizar">Atualizar dados</button>
+      </div>
+    </div>
+    <div id="erro"></div>
+    <div class="grid g5" id="cards"></div>
+    <div class="grid g3" style="margin-top:16px" id="charts-wrap">
+      <div class="card"><div class="tools"><h3>Upgrades</h3></div><p class="d">Variação mensal desde jan/2025</p><div class="chartbox"><canvas id="ch-up"></canvas></div></div>
+      <div class="card"><div class="tools"><h3>Downgrades</h3></div><p class="d">Variação mensal desde jan/2025</p><div class="chartbox"><canvas id="ch-down"></canvas></div></div>
+      <div class="card"><div class="tools"><h3>Saldo das movimentações</h3></div><p class="d">Upgrades − downgrades por mês</p><div class="chartbox"><canvas id="ch-saldo"></canvas></div></div>
+    </div>
+    <div class="ctl" style="margin-top:12px"><span class="sub">Gráficos em:</span>
+      <span class="seg"><button class="on" data-m="qtd">Quantidade</button><button data-m="valor">Valor (R$)</button></span></div>
+    <div class="card" style="margin-top:16px"><h3>Resumo mensal</h3><p class="d">Todos os meses desde janeiro de 2025.</p>
+      <div class="scroll"><table id="tb-mensal"></table></div></div>
+  </section>
+
+  <!-- MOVIMENTAÇÕES -->
+  <section class="page" id="p-mov">
+    <div class="bar"><div><div class="eyebrow">DE → PARA</div><h1>Movimentações<i>.</i></h1>
+      <p class="sub" id="mov-periodo">Carregando período…</p></div>
+      <div class="ctl"><span class="sub">Filtrar por mês:</span><select id="periodo-mov"></select></div></div>
+    <div class="grid g2">
+      <div class="card"><h3>De → Para dos planos</h3><p class="d">Veja de qual plano o cliente saiu e para qual plano foi.</p><div class="scroll"><table id="tb-planos"></table></div></div>
+      <div class="card"><h3>De → Para das durações</h3><p class="d">Veja de qual duração o cliente saiu e para qual duração foi.</p><div class="scroll"><table id="tb-duracoes"></table></div></div>
+    </div>
+  </section>
+
+  <!-- DOWNGRADES -->
+  <section class="page" id="p-down">
+    <div class="bar"><div><div class="eyebrow">CLIENTES</div><h1>Downgrades por dia<i>.</i></h1>
+      <p class="sub">Mesma lista enviada por e-mail (padrão: dia anterior).</p></div>
+      <div class="ctl"><input type="date" id="dia"><button id="btn-dia">Buscar</button><button id="btn-csv">Baixar CSV</button></div></div>
+    <div id="erro-down"></div>
+    <div class="card"><div class="scroll"><table id="tb-down"></table></div></div>
+  </section>
+
+  <!-- ENVIOS -->
+  <section class="page" id="p-envios">
+    <div class="bar"><div><div class="eyebrow">AUDITORIA</div><h1>Histórico de envios<i>.</i></h1></div></div>
+    <div class="card"><div class="scroll"><table id="tb-envios"></table></div></div>
+  </section>
+
+  <!-- CONFIG -->
+  <section class="page" id="p-config">
+    <div class="bar"><div><div class="eyebrow">AJUSTES</div><h1>Configurações<i>.</i></h1>
+      <p class="sub">Quem recebe o resultado do dia anterior, todos os dias às <b id="cfg-hora">09:00</b>.</p></div></div>
+    <div class="card" style="max-width:760px">
+      <h3>Destinatários do e-mail diário</h3><p class="d">O e-mail traz o saldo do dia, upgrades/downgrades e a tabela de downgrades (com CSV anexo).</p>
+      <div class="ctl" style="margin-bottom:14px"><input type="email" id="novo-email" placeholder="nome@empresa.com.br" style="min-width:300px"><button class="pri" id="btn-add">Adicionar</button></div>
+      <div id="lista-dest"></div>
+      <div id="cfg-msg"></div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+      <h3>Enviar agora</h3><p class="d">Dispara o relatório de ontem para os destinatários acima (útil para testar).</p>
+      <button id="btn-enviar">Enviar relatório de ontem agora</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const brl = v => (v < 0 ? '-' : '') + 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sgn = n => n > 0 ? '+' + n : String(n);
+const cls = n => n > 0 ? 'pos' : (n < 0 ? 'neg' : '');
+const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const mesLabel = m => { const [y, mm] = m.split('-'); return MESES[+mm - 1] + '/' + y.slice(2); };
+const mesLong = m => { const [y, mm] = m.split('-'); return MESES[+mm - 1] + '/' + y; };
+const dataBR = iso => iso.split('-').reverse().join('/');
+let DATA = null, METRICA = 'qtd', charts = {};
+
+async function api(url, opts) {
+  const r = await fetch(url, opts);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.detail || r.statusText);
+  return j;
+}
+
+// ---------- navegação
+const TITULOS = {visao:'Visão geral', mov:'Movimentações', down:'Downgrades por dia', envios:'Histórico de envios', config:'Configurações'};
+function ir(p) {
+  document.querySelectorAll('.page').forEach(e => e.classList.toggle('on', e.id === 'p-' + p));
+  document.querySelectorAll('aside a').forEach(a => a.classList.toggle('on', a.dataset.p === p));
+  $('#crumb').textContent = 'Comercial / Planos / ' + TITULOS[p];
+  location.hash = p;
+  if (p === 'down') carregarDown();
+  if (p === 'envios') carregarEnvios();
+  if (p === 'config') carregarConfig();
+}
+document.querySelectorAll('aside a').forEach(a => a.onclick = () => ir(a.dataset.p));
+
+// ---------- visão geral
+function kpi(titulo, valor, sub, c) {
+  return `<div class="card kpi"><div class="t">${titulo}</div><div class="v ${c || ''}">${valor}</div><div class="s">${sub}</div></div>`;
+}
+function renderCards() {
+  const c = DATA.cards;
+  $('#cards').innerHTML =
+    kpi('Saldo do dia anterior', sgn(c.ontem.saldo_qtd), `upgrades − downgrades · ${dataBR(DATA.ontem)}<br>${brl(c.ontem.saldo_valor)}`, cls(c.ontem.saldo_qtd)) +
+    kpi('Saldo do mês atual', sgn(c.mes_atual.saldo_qtd), `${c.mes_atual.upgrades_qtd} up · ${c.mes_atual.downgrades_qtd} down<br>${brl(c.mes_atual.saldo_valor)}`, cls(c.mes_atual.saldo_qtd)) +
+    kpi('Saldo do mês anterior', sgn(c.mes_anterior.saldo_qtd), `${c.mes_anterior.upgrades_qtd} up · ${c.mes_anterior.downgrades_qtd} down<br>${brl(c.mes_anterior.saldo_valor)}`, cls(c.mes_anterior.saldo_qtd)) +
+    kpi('Total de upgrades', c.periodo.upgrades_qtd, brl(c.periodo.upgrades_valor), 'pos') +
+    kpi('Total de downgrades', c.periodo.downgrades_qtd, brl(c.periodo.downgrades_valor), 'neg');
+}
+function mkChart(id, label, valores, cor, tipo) {
+  if (charts[id]) charts[id].destroy();
+  const labels = DATA.mensal.map(m => mesLabel(m.mes));
+  charts[id] = new Chart($('#' + id), {
+    type: tipo,
+    data: {labels, datasets: [{label, data: valores, borderColor: cor,
+      backgroundColor: tipo === 'bar' ? valores.map(v => v < 0 ? '#c0123c' : cor) : cor + '33',
+      borderRadius: 4, tension: .3, fill: tipo === 'line'}]},
+    options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false},
+      tooltip: {callbacks: {label: c => METRICA === 'valor' ? brl(c.parsed.y) : c.parsed.y}}},
+      scales: {y: {ticks: {callback: v => METRICA === 'valor' ? 'R$ ' + (v / 1000).toLocaleString('pt-BR') + 'k' : v}}, x: {ticks: {maxRotation: 60}}}}
+  });
+}
+function renderCharts() {
+  const k = METRICA, m = DATA.mensal;
+  mkChart('ch-up', 'Upgrades', m.map(x => x['upgrades_' + k]), '#0a7d4f', 'bar');
+  mkChart('ch-down', 'Downgrades', m.map(x => Math.abs(x['downgrades_' + k])), '#c0123c', 'bar');
+  mkChart('ch-saldo', 'Saldo', m.map(x => x['saldo_' + k]), '#0f9d9a', 'bar');
+}
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b));
+  METRICA = b.dataset.m; if (DATA) renderCharts();
+});
+function renderMensal() {
+  let h = '<tr><th>Mês</th><th class="n">Upgrades</th><th class="n">Valor up</th><th class="n">Downgrades</th><th class="n">Valor down</th><th class="n">Saldo (qtd)</th><th class="n">Saldo (R$)</th></tr>';
+  [...DATA.mensal].reverse().forEach(m => {
+    h += `<tr><td>${mesLong(m.mes)}</td><td class="n">${m.upgrades_qtd}</td><td class="n pos">${brl(m.upgrades_valor)}</td>
+      <td class="n">${m.downgrades_qtd}</td><td class="n neg">${brl(m.downgrades_valor)}</td>
+      <td class="n ${cls(m.saldo_qtd)}"><b>${sgn(m.saldo_qtd)}</b></td><td class="n ${cls(m.saldo_valor)}">${brl(m.saldo_valor)}</td></tr>`;
+  });
+  $('#tb-mensal').innerHTML = h;
+}
+function renderTransicoes(id, rows) {
+  if (!rows.length) { $(id).innerHTML = '<tr><td class="empty">Sem movimentações no período.</td></tr>'; return; }
+  let h = '<tr><th>De</th><th>Para</th><th>Movimento</th><th class="n">Quantidade</th><th class="n">Saldo de movimentos</th><th class="n">Impacto financeiro</th></tr>';
+  rows.forEach(r => {
+    h += `<tr><td>${esc(r.de)}</td><td>${esc(r.para)}</td><td><span class="pill ${r.movimento}">${r.movimento}</span></td>
+      <td class="n">${r.qtd}</td><td class="n ${cls(r.saldo)}">${sgn(r.saldo)}</td><td class="n ${cls(r.impacto)}">${brl(r.impacto)}</td></tr>`;
+  });
+  $(id).innerHTML = h;
+}
+// Os meses são gerados no navegador: a lista funciona mesmo se a consulta ao banco falhar.
+function mesesLocais() {
+  const out = [], hoje = new Date();
+  let y = 2025, m = 1;
+  while (y < hoje.getFullYear() || (y === hoje.getFullYear() && m <= hoje.getMonth() + 1)) {
+    out.push(`${y}-${String(m).padStart(2, '0')}`);
+    if (++m === 13) { y++; m = 1; }
+  }
+  return out.reverse();
+}
+function montarSeletorPeriodo() {
+  const sel = $('#periodo'), selMov = $('#periodo-mov');
+  if (sel.options.length) return;
+  const opcoes = '<option value="mes_atual">Mês atual</option><option value="mes_anterior">Mês anterior</option><option value="tudo">Desde jan/2025</option>' +
+    mesesLocais().map(m => `<option value="${m}">${mesLong(m)}</option>`).join('');
+  sel.innerHTML = opcoes; selMov.innerHTML = opcoes;
+  sel.value = 'mes_atual'; selMov.value = 'mes_atual';
+}
+async function carregar(atualizar = false) {
+  const btn = $('#btn-atualizar'); btn.disabled = true; btn.textContent = 'Atualizando…';
+  $('#erro').innerHTML = '';
+  try {
+    DATA = await api(`/api/overview?periodo=${$('#periodo').value || 'mes_atual'}&atualizar=${atualizar}`);
+    montarSeletorPeriodo(); renderCards(); renderCharts(); renderMensal();
+    renderTransicoes('#tb-planos', DATA.planos); renderTransicoes('#tb-duracoes', DATA.duracoes);
+    $('#mov-periodo').textContent = `Período: ${dataBR(DATA.periodo.inicio)} a ${dataBR(DATA.periodo.fim)}.`;
+    $('#atualizado').textContent = 'Atualizado em ' + new Date(DATA.atualizado_em).toLocaleString('pt-BR');
+  } catch (e) {
+    $('#erro').innerHTML = `<div class="err"><b>Falha na atualização</b> &nbsp; ${esc(e.message)}</div>`;
+    $('#atualizado').textContent = 'Erro ao carregar';
+  } finally { btn.disabled = false; btn.textContent = 'Atualizar dados'; }
+}
+$('#btn-atualizar').onclick = () => carregar(true);
+// Os dois filtros (Visão geral e Movimentações) controlam o mesmo período.
+$('#periodo').onchange = () => { $('#periodo-mov').value = $('#periodo').value; carregar(false); };
+$('#periodo-mov').onchange = () => { $('#periodo').value = $('#periodo-mov').value; carregar(false); };
+
+// ---------- downgrades por dia
+let ULTIMA_LISTA = [];
+async function carregarDown() {
+  $('#erro-down').innerHTML = '';
+  const dia = $('#dia').value;
+  try {
+    const j = await api('/api/downgrades' + (dia ? '?data=' + dia : ''));
+    if (!dia) $('#dia').value = j.data;
+    ULTIMA_LISTA = j.itens;
+    if (!j.itens.length) { $('#tb-down').innerHTML = '<tr><td class="empty">Nenhum downgrade neste dia.</td></tr>'; return; }
+    let h = '<tr><th>Empresa ID</th><th>Razão social</th><th>Plano ant.</th><th>Plano atual</th><th>Alt. plano</th><th>Duração ant.</th><th>Duração atual</th><th>Alt. duração</th><th class="n">Valor ant.</th><th class="n">Valor atual</th><th class="n">Saldo fin.</th><th>Usuário master</th><th>Telefone</th><th>Celular</th><th>E-mail</th><th>Intranet</th></tr>';
+    j.itens.forEach(r => {
+      h += `<tr><td>${r.empresa_id}</td><td>${esc(r.razao_social)}</td><td>${esc(r.plano_anterior)}</td><td>${esc(r.plano_atual)}</td><td>${esc(r.alteracao_plano)}</td>
+        <td>${esc(r.duracao_anterior_nome)}</td><td>${esc(r.duracao_atual_nome)}</td><td>${esc(r.alteracao_duracao)}</td>
+        <td class="n">${brl(r.valor_anterior)}</td><td class="n">${brl(r.valor_atual)}</td><td class="n neg">${brl(r.diferenca_valor)}</td>
+        <td>${esc(r.nome_usuario)}</td><td>${esc(r.telefone)}</td><td>${esc(r.celular)}</td><td>${esc(r.email)}</td>
+        <td><a href="${esc(r.intranet)}" target="_blank" rel="noopener">Abrir</a></td></tr>`;
+    });
+    $('#tb-down').innerHTML = h;
+  } catch (e) { $('#erro-down').innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+$('#btn-dia').onclick = carregarDown;
+$('#btn-csv').onclick = () => {
+  const cab = ['Empresa ID','Razão social','Plano anterior','Plano atual','Alteração do plano','Duração anterior','Duração atual','Alteração da duração','Valor anterior','Valor atual','Saldo financeiro','Usuário master','Telefone','Celular','E-mail','Intranet'];
+  const num = v => String(v ?? '').replace('.', ',');
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const linhas = ULTIMA_LISTA.map(r => [r.empresa_id, r.razao_social, r.plano_anterior, r.plano_atual, r.alteracao_plano, r.duracao_anterior_nome, r.duracao_atual_nome, r.alteracao_duracao, num(r.valor_anterior), num(r.valor_atual), num(r.diferenca_valor), r.nome_usuario, r.telefone, r.celular, r.email, r.intranet].map(q).join(';'));
+  const blob = new Blob(['\ufeff' + [cab.map(q).join(';'), ...linhas].join('\r\n')], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `downgrades_${$('#dia').value}.csv`; a.click();
+};
+
+// ---------- envios
+async function carregarEnvios() {
+  const rows = await api('/api/envios');
+  if (!rows.length) { $('#tb-envios').innerHTML = '<tr><td class="empty">Nenhum envio registrado ainda.</td></tr>'; return; }
+  let h = '<tr><th>Data de referência</th><th>Enviado em</th><th>Status</th><th class="n">Upgrades</th><th class="n">Downgrades</th><th class="n">Saldo</th><th>Destinatários</th><th>Erro</th></tr>';
+  rows.forEach(r => h += `<tr><td>${dataBR(r.data_ref)}</td><td>${new Date(r.enviado_em).toLocaleString('pt-BR')}</td><td>${esc(r.status)}</td>
+    <td class="n">${r.qtd_upgrades ?? ''}</td><td class="n">${r.qtd_downgrades ?? ''}</td><td class="n">${r.saldo ?? ''}</td><td>${esc(r.destinatarios)}</td><td>${esc(r.erro)}</td></tr>`);
+  $('#tb-envios').innerHTML = h;
+}
+
+// ---------- configurações
+function renderDest(lista) {
+  $('#lista-dest').innerHTML = lista.length
+    ? lista.map(e => `<span class="tag">${esc(e)}<button data-e="${esc(e)}">✕</button></span>`).join('')
+    : '<div class="empty" style="text-align:left;padding:4px 0">Nenhum destinatário cadastrado.</div>';
+  document.querySelectorAll('#lista-dest button').forEach(b => b.onclick = async () => {
+    const j = await api('/api/destinatarios?email=' + encodeURIComponent(b.dataset.e), {method: 'DELETE'});
+    renderDest(j.destinatarios);
+  });
+}
+async function carregarConfig() {
+  const c = await api('/api/config');
+  renderDest(c.destinatarios);
+  $('#cfg-hora').textContent = c.horario_envio; $('#foot-hora').textContent = `Todos os dias às ${c.horario_envio}`;
+  if (!c.smtp_configurado) $('#cfg-msg').innerHTML = '<div class="err">SMTP não configurado no .env.</div>';
+}
+$('#btn-add').onclick = async () => {
+  const el = $('#novo-email'); if (!el.value.trim()) return;
+  try { const j = await api('/api/destinatarios', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: el.value})});
+    renderDest(j.destinatarios); el.value = ''; $('#cfg-msg').innerHTML = '';
+  } catch (e) { $('#cfg-msg').innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+};
+$('#novo-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-add').click(); });
+$('#btn-enviar').onclick = async () => {
+  const b = $('#btn-enviar'); b.disabled = true; b.textContent = 'Enviando…';
+  try { const j = await api('/api/enviar-agora', {method: 'POST'});
+    $('#cfg-msg').innerHTML = `<div class="${j.status === 'enviado' ? 'ok' : 'err'}">${esc(j.mensagem)}</div>`;
+  } catch (e) { $('#cfg-msg').innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  b.disabled = false; b.textContent = 'Enviar relatório de ontem agora';
+};
+
+// ---------- início
+api('/api/config').then(c => $('#foot-hora').textContent = `Todos os dias às ${c.horario_envio}`).catch(() => {});
+montarSeletorPeriodo();
+carregar(false);
+const h = location.hash.slice(1); if (TITULOS[h]) ir(h);
+</script>
+</body>
+</html>
